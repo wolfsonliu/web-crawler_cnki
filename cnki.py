@@ -3,6 +3,7 @@ import re
 import time
 import string
 import random
+import shutil
 import subprocess as sp
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -13,14 +14,9 @@ from PIL import Image
 from PIL import ImageEnhance
 
 random.seed(1024)
-profile = webdriver.FirefoxProfile()
-profile.set_preference('browser.download.folderList', 2)
-profile.set_preference('browser.download.dir', os.getcwd())
-profile.set_preference('browser.download.manager.showWhenStarting', False)
-profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x--tagged; charset=utf-8')
 
 os.environ["TESSDATA_PREFIX"] = os.path.join(os.getcwd(), "tesseract-4.0.0-alpha")
-driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
+
 
 
 def orc(img, tesseract=os.path.join(os.getcwd(), 'tesseract-4.0.0-alpha/tesseract.exe')):
@@ -219,7 +215,11 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
         'A013_1': '资源管理与利用', 'A013_2': '各种资源的开发与利用'
     }
     pagedatadir = './pagedata'
+    filedatadir = './filedata'
     os.makedirs(pagedatadir, exist_ok=True)
+    os.makedirs(filedatadir, exist_ok=True)
+    driver.switch_to.window(driver.window_handles[0])
+    driver.switch_to.default_content()
     driver.get('http://kns.cnki.net/kns/brief/result.aspx?dbprefix=CJFQ')
     driver.maximize_window()
     # 检索按钮
@@ -264,21 +264,19 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
         subsubcategorys = driver.find_element_by_id(subid + 'child').find_elements_by_id('selectbox')
         for subsub in subsubcategorys:
             subsubid = subsub.get_property('value')
-            filename = '_'.join(
-                [
-                    collage_name, subsubid,
-                    subject_name[subid], subsubject_name[subsubid],
-                    str(year_start), str(year_end), '.txt'
-                ]
+            pagefilename = '{0}_{1}_{2}_{3}_{4}.txt'.format(
+                collage_name, subsubid,
+                subsubject_name[subsubid],
+                str(year_start), str(year_end)
             )
             subsub.click()
             time.sleep(2)
             searchbtn = driver.find_element_by_id('btnSearch')
             searchbtn.click()  # 搜索  ShowDiv0
-            WebDriverWait(driver, 5).until(
+            time.sleep(2)
+            WebDriverWait(driver, 6).until(
                 EC.presence_of_element_located((By.ID, 'Show0'))
             )
-            time.sleep(2)
             result_number = int(get_search_result_number(driver))
             if result_number > 6000:
                 raise ValueError(
@@ -288,7 +286,7 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
                 with open(
                         os.path.join(
                             pagedatadir,
-                            filename
+                            pagefilename
                         ),
                         'ab'
                 ) as f:
@@ -303,14 +301,26 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
                     with open(
                             os.path.join(
                                 pagedatadir,
-                                filename
+                                pagefilename
                             ),
                             'ab'
                     ) as f:
                         f.write('\n'.join(tabletext[1:]).encode('utf-8'))
                         f.write('\n'.encode('utf-8'))
+                    clear_items(driver)
                     select_items(driver)
                     export_items(driver, 2)
+                    filename = max(
+                        [os.path.join(filedatadir, f) for f in os.listdir(filedatadir)],
+                        key=os.path.getctime
+                    ) # 获取创建最晚的文件
+                    for fi in range(60):
+                        newfilename = '{0}_{1}_{2}_{3}_{4}_{5}.xls'.format(
+                            collage_name, subsubid, subsubject_name[subsubid], year_start, year_end, fi
+                        )
+                        if not os.path.exists(os.path.join(filedatadir, newfilename)):
+                            shutil.move(filename, os.path.join(filedatadir, newfilename))
+                            break
                     clear_items(driver)
                     time.sleep(random.randint(2, 5))
                     if not next_page(driver):
@@ -376,10 +386,19 @@ subsubject_name = {
     'A013_1': '资源管理与利用', 'A013_2': '各种资源的开发与利用'
 }
 
+
+
+profile = webdriver.FirefoxProfile()
+profile.set_preference('browser.download.folderList', 2)
+profile.set_preference('browser.download.dir', os.path.join(os.getcwd(), 'filedata'))
+profile.set_preference('browser.download.manager.showWhenStarting', False)
+profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x--tagged; charset=utf-8')
+driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
+
+
 year = 2011
 collage_name = '北京大学'
 
-driver.switch_to.window(driver.window_handles[0])
-driver.switch_to.default_content()
 
-crawler('北京大学', 2011, 2011, ['A' + '{0:03d}'.format(x) for x in range(1,14)])
+crawler('北京大学', 2011, 2017, ['A' + '{0:03d}'.format(x) for x in range(4, 14)])
+
