@@ -57,7 +57,7 @@ def get_info(driver, header=''):
     driver.switch_to.default_content()
     driver.switch_to_frame('iframeResult')
     time.sleep(1)
-    gtc = WebDriverWait(driver, 3).until(
+    gtc = WebDriverWait(driver, 6).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'GridTableContent'))
     )
     trs = gtc.find_elements_by_tag_name('tr')
@@ -151,7 +151,7 @@ def export_items(driver, waittime):
     # 打开下载页面
     window_ids = driver.window_handles  # 获取所有页面卡 ID
     driver.switch_to.window(window_ids[1])  # 切换到下载页面
-    savinglist = WebDriverWait(driver, 5).until(
+    savinglist = WebDriverWait(driver, 10).until(
         EC.presence_of_element_located((By.ID, 'SaveTypeList'))
     )
     savinglist.find_elements_by_tag_name('li')[-1].click()  # 点击自定义选项
@@ -167,7 +167,7 @@ def export_items(driver, waittime):
     driver.execute_script('document.body.scrollIntoView()')  # 滚动屏幕到最上层
 
 
-def crawler(collage_name, year_start, year_end, subject_id_list):
+def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
     subject_name = {
         'A001': '自然科学理论与方法', 'A002': '数学', 'A003': '非线性科学与系统科学', 'A004': '力学',
         'A005': '物理学', 'A006': '生物学', 'A007': '天文学', 'A008': '自然地理学和测绘学', 'A009': '气象学',
@@ -214,6 +214,9 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
         'A012_D': '海洋地球物理学', 'A012_E': '工程及水文地球物理勘探', 'A012_F': '地球物理勘测仪器',
         'A013_1': '资源管理与利用', 'A013_2': '各种资源的开发与利用'
     }
+    firstrun = True
+    if subsubstart == '':
+        firstrun = False
     pagedatadir = './pagedata'
     filedatadir = './filedata'
     os.makedirs(pagedatadir, exist_ok=True)
@@ -255,15 +258,21 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
     time.sleep(1)
 
     for subid in subject_id_list:
-        # subcategorydlfirst = WebDriverWait(driver, 6).until(
-        #     EC.presence_of_element_located((By.ID, subid + 'first'))
-        # )
-        subcategorydlfirst = driver.find_element_by_id(subid + 'first')
+        subcategorydlfirst = WebDriverWait(driver, 6).until(
+            EC.presence_of_element_located((By.ID, subid + 'first'))
+        )
+        # subcategorydlfirst = driver.find_element_by_id(subid + 'first')
         subcategorydlfirst.click()  # open subsubcategory list
         time.sleep(1)
         subsubcategorys = driver.find_element_by_id(subid + 'child').find_elements_by_id('selectbox')
+
         for subsub in subsubcategorys:
             subsubid = subsub.get_property('value')
+            # 跳过不需要跑的 subsub
+            if firstrun & (subsubid != subsubstart):
+                continue
+            firstrun = False
+
             pagefilename = '{0}_{1}_{2}_{3}_{4}.txt'.format(
                 collage_name, subsubid,
                 subsubject_name[subsubid],
@@ -310,6 +319,7 @@ def crawler(collage_name, year_start, year_end, subject_id_list):
                     clear_items(driver)
                     select_items(driver)
                     export_items(driver, 2)
+                    time.sleep(1)
                     filename = max(
                         [os.path.join(filedatadir, f) for f in os.listdir(filedatadir)],
                         key=os.path.getctime
@@ -396,9 +406,5 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-year = 2011
-collage_name = '北京大学'
-
-
-crawler('北京大学', 2011, 2017, ['A' + '{0:03d}'.format(x) for x in range(4, 14)])
+crawler('北京理工大学', 2011, 2017, ['A' + '{0:03d}'.format(x) for x in range(1, 14)], '')
 
