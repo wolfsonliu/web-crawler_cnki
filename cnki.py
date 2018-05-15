@@ -370,7 +370,7 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
         'E060_1': '临床医学总论', 'E060_2': '诊断与治疗技术', 'E060_3': '护理学', 'E060_4': '吸毒与戒毒', 'E060_5': '疼痛医学',
         'E060_6': '睡眠医学', 'E060_7': '康复医学', 'E060_8': '临终关怀学', 'E060_9': '其他诊疗技术',
         'E061_1': '感染性疾病的预防', 'E061_2': '感染性疾病总论', 'E061_3': '病毒传染病', 'E061_4': '立克次体传染病',
-        'E061_5': '螺旋体传染病', ' E061_6': '细菌感染性疾病', 'E061_7': '衣原体、支原体属疾病', 'E061_8': '真菌、放线菌传染病',
+        'E061_5': '螺旋体传染病', 'E061_6': '细菌感染性疾病', 'E061_7': '衣原体、支原体属疾病', 'E061_8': '真菌、放线菌传染病',
         'E061_9': '结核病', 'E061_A': '寄生虫病', 'E061_B': '其他感染性疾病',
         'E062_1': '总论', 'E062_2': '诊断学', 'E062_3': '心脏疾病', 'E062_4': '血管疾病', 'E062_6': '血压异常',
         'E062_7': '血液及淋巴系疾病',
@@ -562,13 +562,15 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
     driver.execute_script('arguments[0].value = arguments[1]', collage_input, collage_name)
 
     # 选择年份
-    time.sleep(2)
+    time.sleep(1)
     yearfrom = driver.find_element_by_name('year_from')
+    time.sleep(1)
     yearfrom.send_keys('{0}'.format(year_start))
-    time.sleep(2)
+    time.sleep(1)
     yearto = driver.find_element_by_name('year_to')
+    time.sleep(1)
     yearto.send_keys('{0}'.format(year_end))
-    time.sleep(2)
+    time.sleep(1)
 
     # 选择来源
     journalsource = driver.find_element_by_id('ddSubmit').find_elements_by_class_name('dd01')[3]
@@ -656,7 +658,7 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
                         clear_items(driver)
                         select_items(driver)
                         export_items(driver, 2)
-                        time.sleep(1)
+                        time.sleep(2)
                         filename = max(
                             [os.path.join(filedatadir, f) for f in os.listdir(filedatadir)],
                             key=os.path.getctime
@@ -669,15 +671,25 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
                                 shutil.move(filename, os.path.join(filedatadir, newfilename))
                                 break
                         clear_items(driver)
-                        time.sleep(random.randint(2, 5))
+                        time.sleep(random.randint(3, 5))
                         if not next_page(driver):
                             break
                 subsub.click()
-            time.sleep(1)
+                time.sleep(1)
+            time.sleep(2)
             subcategorydlsecond = WebDriverWait(driver, 5).until(
                 EC.presence_of_element_located((By.ID, subid + 'second'))
             )
             subcategorydlsecond.click()  # close subsubcategory list
+        # close category
+        category_second = driver.find_element_by_id(
+            'XuekeNavi_Div'
+        ).find_element_by_id(
+            bigsub
+        ).find_element_by_id(
+            bigsub + 'second'
+        )
+        category_second.click()
 
 
 
@@ -887,7 +899,7 @@ subsubject_name = {
     'E060_1': '临床医学总论', 'E060_2': '诊断与治疗技术', 'E060_3': '护理学', 'E060_4': '吸毒与戒毒', 'E060_5': '疼痛医学',
     'E060_6': '睡眠医学', 'E060_7': '康复医学', 'E060_8': '临终关怀学', 'E060_9': '其他诊疗技术',
     'E061_1': '感染性疾病的预防', 'E061_2': '感染性疾病总论', 'E061_3': '病毒传染病', 'E061_4': '立克次体传染病',
-    'E061_5': '螺旋体传染病', ' E061_6': '细菌感染性疾病', 'E061_7': '衣原体、支原体属疾病', 'E061_8': '真菌、放线菌传染病',
+    'E061_5': '螺旋体传染病', 'E061_6': '细菌感染性疾病', 'E061_7': '衣原体、支原体属疾病', 'E061_8': '真菌、放线菌传染病',
     'E061_9': '结核病', 'E061_A': '寄生虫病', 'E061_B': '其他感染性疾病',
     'E062_1': '总论', 'E062_2': '诊断学', 'E062_3': '心脏疾病', 'E062_4': '血管疾病', 'E062_6': '血压异常',
     'E062_7': '血液及淋巴系疾病',
@@ -1072,5 +1084,9 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-crawler('北京理工大学', 2011, 2017, ['A' + '{0:03d}'.format(x) for x in range(5, 14)], 'A005_C')
+crawler('北京大学', 2011, 2017, list(subject_name.keys())[55:], 'E056_A')
 
+crawler('北京大学', 2011, 2017, ['B016'], 'C030_I')
+
+driver.get('http://kns.cnki.net/kns/brief/result.aspx?dbprefix=CJFQ')
+driver.switch_to_alert().accept()
