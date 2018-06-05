@@ -563,13 +563,19 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
 
     # 选择年份
     time.sleep(1)
-    yearfrom = driver.find_element_by_name('year_from')
+    while True:
+        if driver.find_element_by_name('year_from').get_property('value') == str(year_start):
+            break
+        else:
+            yearfrom = driver.find_element_by_name('year_from')
+            yearfrom.send_keys('{0}'.format(year_start))
     time.sleep(1)
-    yearfrom.send_keys('{0}'.format(year_start))
-    time.sleep(1)
-    yearto = driver.find_element_by_name('year_to')
-    time.sleep(1)
-    yearto.send_keys('{0}'.format(year_end))
+    while True:
+        if driver.find_element_by_name('year_to').get_property('value') == str(year_end):
+            break
+        else:
+            yearto = driver.find_element_by_name('year_to')
+            yearto.send_keys('{0}'.format(year_end))
     time.sleep(1)
 
     # 选择来源
@@ -665,7 +671,7 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
                         ) # 获取创建最晚的文件
                         if os.path.basename(filename)[0] != 'C':
                             raise ValueError('Wrong file to rename.')
-                        for fi in range(60):
+                        for fi in range(1000):
                             newfilename = '{0}_{1}_{2}_{3}_{4}_{5}.xls'.format(
                                 collage_name, subsubid, subsubject_name[subsubid], year_start, year_end, fi
                             )
@@ -1127,7 +1133,7 @@ def nowcrawler(collage_name, year_start, year_end, subid, subsubid):
             )  # 获取创建最晚的文件
             if os.path.basename(filename)[0] != 'C':
                 raise ValueError('Wrong file to rename.')
-            for fi in range(60):
+            for fi in range(1000):
                 newfilename = '{0}_{1}_{2}_{3}_{4}_{5}.xls'.format(
                     collage_name, subsubid, subsubject_name[subsubid], year_start, year_end, fi
                 )
@@ -1532,11 +1538,11 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-crawler('北京大学', 2011, 2017, list(subject_name.keys())[130:], 'H131_8')
+crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[34:], 'C035_D')
 
-crawler('北京大学', 2011, 2017, ['B016'], 'C030_I')
+crawler('北京航空航天大学', 2011, 2017, ['J164'], 'J164_4')
 
-nowcrawler('北京大学', 2011, 2017, 'H131', 'H131_9')
-# 9
+nowcrawler('北京航空航天大学', 2011, 2017, 'C031', 'C031_2')
+# 154_3
 driver.get('http://kns.cnki.net/kns/brief/result.aspx?dbprefix=CJFQ')
 driver.switch_to_alert().accept()
