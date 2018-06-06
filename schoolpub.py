@@ -43,6 +43,10 @@ def orc(img, tesseract=os.path.join(os.getcwd(), 'tesseract-4.0.0-alpha/tesserac
 def get_search_result_number(driver):
     # 返回总搜索结果
     driver.switch_to.default_content()
+    year = WebDriverWait(driver, 8).until(
+        EC.presence_of_element_located((By.ID, 'ShowDiv0'))
+    )
+    year.text
     driver.switch_to_frame('iframeResult')
     pagenumberspan = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'pagerTitleCell'))
@@ -50,6 +54,7 @@ def get_search_result_number(driver):
     pn = pagenumberspan.get_attribute('innerHTML').split('&nbsp')[2].replace(';', '').replace(',', '')
     driver.switch_to.default_content()
     return pn
+
 
 
 def get_info(driver, header=''):

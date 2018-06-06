@@ -43,6 +43,10 @@ def orc(img, tesseract=os.path.join(os.getcwd(), 'tesseract-4.0.0-alpha/tesserac
 def get_search_result_number(driver):
     # 返回总搜索结果
     driver.switch_to.default_content()
+    year = WebDriverWait(driver, 8).until(
+        EC.presence_of_element_located((By.ID, 'ShowDiv0'))
+    )
+    year.text
     driver.switch_to_frame('iframeResult')
     pagenumberspan = WebDriverWait(driver, 5).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'pagerTitleCell'))
@@ -1538,7 +1542,7 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[34:], 'C035_D')
+crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[114:], 'G115_1')
 
 crawler('北京航空航天大学', 2011, 2017, ['J164'], 'J164_4')
 
