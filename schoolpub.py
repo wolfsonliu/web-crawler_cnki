@@ -174,8 +174,7 @@ def export_items(driver, waittime):
 
 
 
-
-def pubnumbercrawler(collages, year_start, year_end):
+def pubnumbercrawler(collages, year_start, year_end, filename):
 
     bigsubname = {'A': '基础科学', 'B': '工程科技I期', 'C': '工程科技II期', 'D': '农业科技',
                   'E': '医药卫生科技', 'F': '哲学与人文科学', 'G': '社会科学I期', 'H': '社会科学II期',
@@ -234,7 +233,7 @@ def pubnumbercrawler(collages, year_start, year_end):
                 time.sleep(1)
                 searchbtn = driver.find_element_by_id('btnSearch')
                 searchbtn.click()
-                time.sleep(2)
+                time.sleep(4)
                 result_number = int(get_search_result_number(driver))
 
                 one = [
@@ -243,7 +242,7 @@ def pubnumbercrawler(collages, year_start, year_end):
                        driver.find_element_by_name('year_to').get_property('value'),
                        result_number
                 ]
-                with open('result.csv', 'ab') as f:
+                with open(filename, 'ab') as f:
                    f.write('{0},{1},{2},{3},{4}\n'.format(one[0], one[1], one[2], one[3], one[4]).encode('utf-8'))
                 pubresult.append(one)
                 category.click()
@@ -2078,4 +2077,4 @@ schools = ['北京大学',
            '哈密职业技术学院'
            ]
 
-result = pubnumbercrawler(schools[276:], 2001, 2011)
+result = pubnumbercrawler(schools[276:], 2001, 2011, 'result.csv')

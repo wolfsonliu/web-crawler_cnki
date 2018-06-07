@@ -1542,11 +1542,11 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[114:], 'G115_1')
+crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[139:], 'I140_4')
 
 crawler('北京航空航天大学', 2011, 2017, ['J164'], 'J164_4')
 
-nowcrawler('北京航空航天大学', 2011, 2017, 'C031', 'C031_2')
+nowcrawler('北京航空航天大学', 2011, 2017, 'I140', 'I140_3')
 # 154_3
 driver.get('http://kns.cnki.net/kns/brief/result.aspx?dbprefix=CJFQ')
 driver.switch_to_alert().accept()
