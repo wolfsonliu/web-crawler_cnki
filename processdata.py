@@ -43,4 +43,19 @@ headers = [
 #             i = i - 1
 #
 
-data = pd.read_html('CNKI-636610206041782500.xls', header=0)
+data = list()
+
+for x in os.listdir('D:/analysis/cnki_year'):
+    yeardata = pd.read_csv(os.path.join('D:/analysis/cnki_year', x), header=None)
+    yeardata.columns = ['University', 'Subject', 'start', 'end', 'count']
+    data.append(yeardata)
+
+alldata = pd.concat(data, axis=0)
+
+index = pd.MultiIndex.from_arrays([alldata['University'], alldata['Subject'], alldata['start']])
+
+alldata.index = index
+
+unstackdata = alldata['count'].unstack([1, 2]).copy()
+
+unstackdata.to_csv('alldata.csv')

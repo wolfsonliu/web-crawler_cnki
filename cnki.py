@@ -567,19 +567,20 @@ def crawler(collage_name, year_start, year_end, subject_id_list, subsubstart):
 
     # 选择年份
     time.sleep(1)
-    while True:
-        if driver.find_element_by_name('year_from').get_property('value') == str(year_start):
-            break
-        else:
-            yearfrom = driver.find_element_by_name('year_from')
-            yearfrom.send_keys('{0}'.format(year_start))
-    time.sleep(1)
-    while True:
-        if driver.find_element_by_name('year_to').get_property('value') == str(year_end):
-            break
-        else:
-            yearto = driver.find_element_by_name('year_to')
-            yearto.send_keys('{0}'.format(year_end))
+    for i in range(2):
+        while True:
+            if driver.find_element_by_name('year_from').get_property('value') == str(year_start):
+                break
+            else:
+                yearfrom = driver.find_element_by_name('year_from')
+                yearfrom.send_keys('{0}'.format(year_start))
+        time.sleep(1)
+        while True:
+            if driver.find_element_by_name('year_to').get_property('value') == str(year_end):
+                break
+            else:
+                yearto = driver.find_element_by_name('year_to')
+                yearto.send_keys('{0}'.format(year_end))
     time.sleep(1)
 
     # 选择来源
@@ -1542,11 +1543,11 @@ profile.set_preference('browser.helperApps.neverAsk.saveToDisk', 'application/x-
 driver = webdriver.Firefox(firefox_profile=profile, executable_path=r'./geckodriver.exe')
 
 
-crawler('北京航空航天大学', 2011, 2017, list(subject_name.keys())[139:], 'I140_4')
+crawler('中国农业大学', 2011, 2017, list(subject_name.keys())[71:], 'E072_9')
 
-crawler('北京航空航天大学', 2011, 2017, ['J164'], 'J164_4')
+crawler('中国农业大学', 2011, 2017, ['H123'], 'H123_3')
 
-nowcrawler('北京航空航天大学', 2011, 2017, 'I140', 'I140_3')
+nowcrawler('中国农业大学', 2011, 2017, 'B014', 'B014_6')
 # 154_3
 driver.get('http://kns.cnki.net/kns/brief/result.aspx?dbprefix=CJFQ')
 driver.switch_to_alert().accept()

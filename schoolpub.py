@@ -2077,4 +2077,4 @@ schools = ['北京大学',
            '哈密职业技术学院'
            ]
 
-result = pubnumbercrawler(schools[276:], 2001, 2011, 'result.csv')
+result = pubnumbercrawler(schools[1523:], 2009, 2009, 'result_2009.csv')
